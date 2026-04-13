@@ -1,0 +1,409 @@
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[calc(100vh-100px)]">
+    <!-- Map Area -->
+    <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden relative z-0">
+        <div id="leafletMap" class="h-full w-full"></div>
+        
+        <div class="absolute bottom-4 right-4 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-2xl border border-gray-100 dark:border-slate-700 z-[1000] text-xs font-bold text-pnp-blue dark:text-pnp-gold uppercase tracking-widest">
+            <i class="fas fa-info-circle mr-2 text-pnp-gold"></i>
+            Click map to add new point
+        </div>
+    </div>
+
+    <!-- Sidebar: Add Point Form -->
+    <div id="adminSidebar" class="space-y-5 overflow-y-auto pr-2">
+        <!-- Live Coordinates Display -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden">
+            <div class="p-4 border-b border-gray-50 dark:border-slate-700">
+                <h3 class="font-bold text-pnp-blue dark:text-pnp-gold uppercase tracking-widest text-xs">Live Coordinates</h3>
+            </div>
+            <div class="p-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <p class="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Latitude</p>
+                        <p id="liveLat" class="text-sm font-mono font-black text-pnp-blue dark:text-pnp-gold">0.000000</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Longitude</p>
+                        <p id="liveLng" class="text-sm font-mono font-black text-pnp-blue dark:text-pnp-gold">0.000000</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden">
+            <div class="p-4 border-b border-gray-50 dark:border-slate-700">
+                <h3 class="font-bold text-pnp-blue dark:text-pnp-gold uppercase tracking-widest text-xs">Add Map Point</h3>
+            </div>
+            <form action="/admin/map/add" method="POST" class="p-4 space-y-4" id="addPointForm">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-widest font-bold">Latitude</label>
+                        <input type="text" name="lat" id="lat" required readonly class="w-full px-3 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-xs font-mono dark:text-white">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-widest font-bold">Longitude</label>
+                        <input type="text" name="lng" id="lng" required readonly class="w-full px-3 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-xs font-mono dark:text-white">
+                    </div>
+                </div>
+                
+                <div class="space-y-1">
+                    <label for="barangay" class="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-widest font-bold">Barangay</label>
+                    <div class="flex space-x-2">
+                        <select name="barangay" id="barangay" onchange="locateBarangay()" required class="flex-1 px-3 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-pnp-blue outline-none text-sm font-bold dark:text-white">
+                            <option value="Alipit">Alipit</option>
+                            <option value="Bagumbayan">Bagumbayan</option>
+                            <option value="Bubukal">Bubukal</option>
+                            <option value="Calios">Calios</option>
+                            <option value="Duhat">Duhat</option>
+                            <option value="Gatid">Gatid</option>
+                            <option value="Jasaan">Jasaan</option>
+                            <option value="Labuin">Labuin</option>
+                            <option value="Malinao">Malinao</option>
+                            <option value="Oogong">Oogong</option>
+                            <option value="Pagsawitan">Pagsawitan</option>
+                            <option value="Palasan">Palasan</option>
+                            <option value="Patimbao">Patimbao</option>
+                            <option value="Poblacion I (Barangay I)">Poblacion I (Barangay I)</option>
+                            <option value="Poblacion II (Barangay II)">Poblacion II (Barangay II)</option>
+                            <option value="Poblacion III (Barangay III)">Poblacion III (Barangay III)</option>
+                            <option value="Poblacion IV (Barangay IV)">Poblacion IV (Barangay IV)</option>
+                            <option value="Poblacion V (Barangay V)">Poblacion V (Barangay V)</option>
+                            <option value="San Jose">San Jose</option>
+                            <option value="San Juan">San Juan</option>
+                            <option value="San Pablo Norte">San Pablo Norte</option>
+                            <option value="San Pablo Sur">San Pablo Sur</option>
+                            <option value="Santisima Cruz">Santisima Cruz</option>
+                            <option value="Santo Angel Central">Santo Angel Central</option>
+                            <option value="Santo Angel Norte">Santo Angel Norte</option>
+                            <option value="Santo Angel Sur">Santo Angel Sur</option>
+                        </select>
+                        <button type="button" onclick="locateBarangay()" class="px-3 py-2 bg-pnp-blue dark:bg-pnp-gold text-white dark:text-pnp-blue rounded-lg shadow-lg hover:scale-105 transition-all duration-300 flex items-center justify-center" title="Locate on Map">
+                            <i class="fas fa-crosshairs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <input type="hidden" name="incident_type" value="Other">
+
+                <div class="space-y-1">
+                    <label for="incident_date" class="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-widest font-bold">Incident Date</label>
+                    <input type="date" name="incident_date" id="incident_date" required class="w-full px-3 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-pnp-blue outline-none text-sm font-bold dark:text-white">
+                </div>
+
+                <button type="submit" class="w-full bg-pnp-blue text-white font-bold py-3 rounded-xl shadow-lg transition duration-300 hover:bg-blue-900 uppercase tracking-widest text-xs">
+                    Add Point to Map
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    let map;
+    let tempMarker;
+    let santaCruzGeoJSON;
+    const barangayGeoJsonUrl = 'https://raw.githubusercontent.com/faeldon/philippines-json-maps/master/2019/geojson/barangay/philippines-barangay-043424000.json';
+
+    const colors = {
+        'Theft': '#dc2626',
+        'Vandalism': '#f97316',
+        'Assault': '#7f1d1d',
+        'Suspicious Activity': '#eab308',
+        'Robbery': '#9333ea',
+        'Other': '#6b7280'
+    };
+
+    const manualPins = [
+        { name: 'Alipit', lat: 14.223931, lng: 121.405213 },
+        { name: 'Bagumbayan', lat: 14.268334, lng: 121.398454 },
+        { name: 'Duhat', lat: 14.2525, lng: 121.3825 },
+        { name: 'Bubukal', lat: 14.256460, lng: 121.399183 },
+        { name: 'Calios', lat: 14.2750, lng: 121.4050 },
+        { name: 'Gatid', lat: 14.2600, lng: 121.3830 },
+        { name: 'Jasaan', lat: 14.223577, lng: 121.394827 },
+        { name: 'Labuin', lat: 14.250158, lng: 121.400664 },
+        { name: 'Malinao', lat: 14.232833, lng: 121.396823 },
+        { name: 'Oogong', lat: 14.226323, lng: 121.400621 },
+        { name: 'Pagsawitan', lat: 14.265754, lng: 121.426545 },
+        { name: 'Palasan', lat: 14.257498, lng: 121.418992 },
+        { name: 'Patimbao', lat: 14.270081, lng: 121.418366 },
+        { name: 'Poblacion I (Barangay I)', lat: 14.277068, lng: 121.418881 },
+        { name: 'Poblacion II (Barangay II)', lat: 14.279647, lng: 121.416006 },
+        { name: 'Poblacion III (Barangay III)', lat: 14.282028, lng: 121.415159 },
+        { name: 'Poblacion IV (Barangay IV)', lat: 14.283790, lng: 121.414016 },
+        { name: 'Poblacion V (Barangay V)', lat: 14.285282, lng: 121.412476 },
+        { name: 'San Jose', lat: 14.237118, lng: 121.403754 },
+        { name: 'San Juan', lat: 14.243815, lng: 121.406972 },
+        { name: 'San Pablo Norte', lat: 14.290210, lng: 121.413023 },
+        { name: 'San Pablo Sur', lat: 14.282211, lng: 121.422261 },
+        { name: 'Santisima Cruz', lat: 14.290647, lng: 121.409140 },
+        { name: 'Santo Angel Central', lat: 14.285137, lng: 121.408947 },
+        { name: 'Santo Angel Norte', lat: 14.288547, lng: 121.406307 },
+        { name: 'Santo Angel Sur', lat: 14.282329, lng: 121.410985 }
+    ];
+
+    function locateBarangay() {
+        const selectedName = document.getElementById('barangay').value;
+        if (!selectedName) {
+            const bounds = [[14.2100, 121.3400], [14.3100, 121.4850]];
+            map.flyToBounds(bounds, { padding: [50, 50], duration: 1.5 });
+            return;
+        }
+
+        const pin = manualPins.find(p => p.name.toLowerCase() === selectedName.toLowerCase());
+        if (pin && map) {
+            map.flyTo([pin.lat, pin.lng], 16, {
+                animate: true,
+                duration: 1.5
+            });
+            
+            // Open popup after a short delay
+            setTimeout(() => {
+                map.eachLayer((layer) => {
+                    if (layer instanceof L.Marker) {
+                        const latlng = layer.getLatLng();
+                        if (latlng.lat === pin.lat && latlng.lng === pin.lng) {
+                            layer.openPopup();
+                        }
+                    }
+                });
+            }, 1600);
+        }
+    }
+
+    function addManualPins() {
+        manualPins.forEach(pin => {
+            const marker = L.marker([pin.lat, pin.lng], {
+                icon: L.divIcon({
+                    className: 'manual-pin-container',
+                    html: `
+                        <div class="relative group flex flex-col items-center">
+                            <!-- Pulse Effect -->
+                            <div class="absolute w-8 h-8 bg-pnp-gold/30 rounded-full animate-ping"></div>
+                            <!-- Main Pin -->
+                            <div class="relative w-10 h-10 bg-pnp-blue dark:bg-pnp-gold rounded-full flex items-center justify-center shadow-2xl border-2 border-white dark:border-slate-900 transform group-hover:scale-110 transition-all duration-300">
+                                <i class="fas fa-location-dot text-white dark:text-pnp-blue text-lg"></i>
+                            </div>
+                            <!-- Pointer -->
+                            <div class="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-pnp-blue dark:border-t-pnp-gold -mt-1"></div>
+                        </div>
+                    `,
+                    iconSize: [40, 48],
+                    iconAnchor: [20, 48]
+                })
+            }).addTo(map);
+
+            marker.bindPopup(`
+                <div class="p-4 min-w-[200px] bg-white dark:bg-slate-800 rounded-xl">
+                    <div class="flex items-center space-x-3 mb-3 pb-3 border-b border-gray-100 dark:border-slate-700">
+                        <div class="w-8 h-8 bg-pnp-blue dark:bg-pnp-gold rounded-lg flex items-center justify-center">
+                            <i class="fas fa-shield-halved text-white dark:text-pnp-blue text-xs"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-pnp-blue dark:text-pnp-gold font-black uppercase tracking-widest text-xs leading-none">${pin.name}</h3>
+                            <p class="text-[8px] text-gray-400 font-bold uppercase mt-1">Sta. Cruz, Laguna</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[9px] text-gray-500 font-bold uppercase">Classification</span>
+                            <span class="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/30 text-pnp-blue dark:text-blue-400 rounded-full text-[8px] font-black uppercase">Reference Point</span>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-slate-900 rounded-xl border border-gray-100 dark:border-slate-700">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[8px] font-black text-gray-400 uppercase">Latitude</span>
+                                <span class="text-[9px] font-mono font-bold text-gray-700 dark:text-gray-300">${pin.lat.toFixed(6)}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[8px] font-black text-gray-400 uppercase">Longitude</span>
+                                <span class="text-[9px] font-mono font-bold text-gray-700 dark:text-gray-300">${pin.lng.toFixed(6)}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `, {
+                className: 'custom-pnp-popup',
+                maxWidth: 300
+            });
+        });
+    }
+
+    function initMap() {
+        try {
+            // Shifted bounds slightly north and west to center Sta. Cruz
+            const bounds = [[14.2100, 121.3400], [14.3100, 121.4850]];
+            map = L.map('leafletMap', {
+                zoomControl: true,
+                dragging: true,
+                touchZoom: true,
+                doubleClickZoom: true,
+                scrollWheelZoom: true,
+                boxZoom: true,
+                keyboard: true,
+                attributionControl: true
+            }).fitBounds(bounds);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+            }).addTo(map);
+
+            addManualPins();
+
+            // Track mouse movement for live coordinates
+            map.on('mousemove', (e) => {
+                document.getElementById('liveLat').textContent = e.latlng.lat.toFixed(6);
+                document.getElementById('liveLng').textContent = e.latlng.lng.toFixed(6);
+            });
+
+            // Load GeoJSON for geofencing
+            fetch(barangayGeoJsonUrl)
+                .then(response => response.json())
+                .then(data => {
+                    santaCruzGeoJSON = data;
+                    L.geoJSON(data, {
+                        style: {
+                            color: '#C8A415',
+                            weight: 1,
+                            fillOpacity: 0.05,
+                            fillColor: '#1A3A5C'
+                        },
+                        onEachFeature: function(feature, layer) {
+                            const name = feature.properties.NAME_3;
+                            try {
+                                const centroid = layer.getBounds().getCenter();
+                                const marker = L.circleMarker(centroid, {
+                                    radius: 4,
+                                    fillColor: '#C8A415',
+                                    color: '#1A3A5C',
+                                    weight: 1,
+                                    opacity: 1,
+                                    fillOpacity: 1
+                                }).addTo(map);
+
+                                marker.bindPopup(`
+                                    <div class="p-2 min-w-[150px]">
+                                        <h3 class="text-pnp-blue font-black uppercase tracking-widest text-xs mb-1">Brgy. ${name}</h3>
+                                        <p class="text-[9px] text-gray-500 font-bold uppercase mb-2">Sta. Cruz, Laguna</p>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-[8px] text-gray-400 font-bold uppercase">Status</span>
+                                            <span class="px-2 py-0.5 bg-green-100 text-green-600 rounded-full text-[7px] font-black uppercase">Secure</span>
+                                        </div>
+                                    </div>
+                                `);
+                            } catch (err) {
+                                console.error('Error adding marker for barangay:', name, err);
+                            }
+                        }
+                    }).addTo(map);
+                })
+                .catch(err => console.error('Error loading GeoJSON for geofencing:', err));
+
+            // Render Existing Points
+            <% points.forEach(p => { %>
+                L.circleMarker([<%= p.lat %>, <%= p.lng %>], {
+                    radius: 6,
+                    fillColor: colors['<%= p.incident_type %>'] || '#6b7280',
+                    color: '#FFFFFF',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(map).bindPopup(`<b><%= p.incident_type %></b><br><%= new Date(p.incident_date).toLocaleDateString() %>`);
+            <% }) %>
+
+            map.on('click', (e) => {
+                setMarker(e.latlng);
+            });
+        } catch (err) {
+            console.error('Error initializing admin map:', err);
+        }
+    }
+
+    function setMarker(latlng) {
+        if (santaCruzGeoJSON && !checkGeofence(latlng)) {
+            alert('Please select a location within Santa Cruz, Laguna.');
+            return false;
+        }
+
+        if (tempMarker) map.removeLayer(tempMarker);
+        tempMarker = L.marker(latlng).addTo(map);
+
+        document.getElementById('lat').value = latlng.lat.toFixed(6);
+        document.getElementById('lng').value = latlng.lng.toFixed(6);
+        return true;
+    }
+
+    // Simple Point in Polygon function
+    function isPointInPolygon(point, vs) {
+        const x = point[0], y = point[1];
+        let inside = false;
+        
+        if (Array.isArray(vs[0][0][0])) {
+            for (let i = 0; i < vs.length; i++) {
+                if (isPointInPolygon(point, vs[i])) return true;
+            }
+            return false;
+        }
+
+        const polygon = Array.isArray(vs[0][0]) ? vs[0] : vs;
+
+        for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+            const xi = polygon[i][0], yi = polygon[i][1];
+            const xj = polygon[j][0], yj = polygon[j][1];
+            const intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+            if (intersect) inside = !inside;
+        }
+        return inside;
+    }
+
+    function checkGeofence(latlng) {
+        let isInside = false;
+        if (santaCruzGeoJSON) {
+            const point = [latlng.lng, latlng.lat];
+            for (const feature of santaCruzGeoJSON.features) {
+                if (isPointInPolygon(point, feature.geometry.coordinates)) {
+                    isInside = true;
+                    // Auto-select barangay in dropdown
+                    const barangaySelect = document.getElementById('barangay');
+                    const name = feature.properties.NAME_3;
+                    for (let i = 0; i < barangaySelect.options.length; i++) {
+                        if (barangaySelect.options[i].value === name) {
+                            barangaySelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        return isInside;
+    }
+
+    // Auto-set current date
+    document.getElementById('incident_date').valueAsDate = new Date();
+
+    document.addEventListener('DOMContentLoaded', initMap);
+</script>
+
+<style>
+    #adminSidebar::-webkit-scrollbar {
+        width: 5px;
+    }
+    #adminSidebar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    #adminSidebar::-webkit-scrollbar-thumb {
+        background: rgba(26, 58, 92, 0.1);
+        border-radius: 10px;
+        transition: all 0.3s;
+    }
+    #adminSidebar:hover::-webkit-scrollbar-thumb {
+        background: rgba(26, 58, 92, 0.3);
+    }
+    .dark #adminSidebar::-webkit-scrollbar-thumb {
+        background: rgba(200, 164, 21, 0.1);
+    }
+    .dark #adminSidebar:hover::-webkit-scrollbar-thumb {
+        background: rgba(200, 164, 21, 0.3);
+    }
+</style>
+
