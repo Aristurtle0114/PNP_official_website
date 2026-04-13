@@ -276,6 +276,9 @@
                     : `<p class="text-[10px] text-gray-400 font-bold uppercase text-center py-4">No incidents recorded</p>`;
             }
 
+            // Crime dots are no longer added to the map per user request.
+            // All crimes are visible through the sidebar summary.
+            /*
             points.forEach(point => {
                 const marker = L.circleMarker([point.lat, point.lng], {
                     radius: 8,
@@ -300,6 +303,7 @@
             });
 
             incidentMarkers.addTo(map);
+            */
         } catch (err) {
             console.error('Error loading map points:', err);
         }

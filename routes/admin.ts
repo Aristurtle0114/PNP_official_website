@@ -29,6 +29,7 @@ router.post('/tips/:id/update', adminController.updateTip);
 // Map
 router.get('/map', adminController.getMap);
 router.post('/map/add', adminController.postMapPoint);
+router.post('/map/upload-pdf', adminController.uploadMiddleware, adminController.uploadPdf);
 
 // Hotlines
 router.get('/hotlines', adminController.getHotlines);
