@@ -16,8 +16,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 // Favicon handler at the very top to avoid middleware overhead/errors
-app.get('/favicon.ico', (req, res) => res.sendStatus(204));
-app.get('/favicon.png', (req, res) => res.sendStatus(204));
+app.get(['/favicon.ico', '/favicon.png'], (req, res) => res.status(204).end());
 
 // Trust proxy for Vercel/Cloud Run
 app.set('trust proxy', 1);
@@ -25,6 +24,10 @@ app.set('trust proxy', 1);
 // Middleware
 app.use(morgan('dev'));
 app.use(cookieParser());
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url} - Session ID: ${req.sessionID}`);
+  next();
+});
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -33,8 +36,8 @@ app.use(express.static(path.join(process.cwd(), 'public')));
 // Session
 app.use(session({
   secret: process.env.SESSION_SECRET || 'cpicrs-secret-key',
-  resave: false,
-  saveUninitialized: false,
+  resave: true,
+  saveUninitialized: true,
   proxy: true, // Trust the reverse proxy
   cookie: { 
     secure: true,
@@ -42,14 +45,6 @@ app.use(session({
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
-
-// Logging middleware after session
-app.use((req, res, next) => {
-  if (req.url !== '/favicon.ico' && req.url !== '/favicon.png') {
-    console.log(`${req.method} ${req.url} - Session ID: ${req.sessionID || 'N/A'}`);
-  }
-  next();
-});
 
 // View Engine
 app.set('view engine', 'ejs');

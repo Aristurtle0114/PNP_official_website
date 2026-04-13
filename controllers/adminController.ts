@@ -1,46 +1,6 @@
 import { Request, Response } from 'express';
 import { db } from '../config/database.js';
 import bcrypt from 'bcryptjs';
-import multer from 'multer';
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const pdf = require('pdf-parse');
-
-const upload = multer({ storage: multer.memoryStorage() });
-export const uploadMiddleware = upload.single('pdfReport');
-
-interface MulterRequest extends Request {
-  file?: Express.Multer.File;
-}
-
-const manualPins = [
-  { name: 'Alipit', lat: 14.223931, lng: 121.405213 },
-  { name: 'Bagumbayan', lat: 14.268334, lng: 121.398454 },
-  { name: 'Duhat', lat: 14.2525, lng: 121.3825 },
-  { name: 'Bubukal', lat: 14.256460, lng: 121.399183 },
-  { name: 'Calios', lat: 14.2750, lng: 121.4050 },
-  { name: 'Gatid', lat: 14.2600, lng: 121.3830 },
-  { name: 'Jasaan', lat: 14.223577, lng: 121.394827 },
-  { name: 'Labuin', lat: 14.250158, lng: 121.400664 },
-  { name: 'Malinao', lat: 14.232833, lng: 121.396823 },
-  { name: 'Oogong', lat: 14.226323, lng: 121.400621 },
-  { name: 'Pagsawitan', lat: 14.265754, lng: 121.426545 },
-  { name: 'Palasan', lat: 14.257498, lng: 121.418992 },
-  { name: 'Patimbao', lat: 14.270081, lng: 121.418366 },
-  { name: 'Poblacion I (Barangay I)', lat: 14.277068, lng: 121.418881 },
-  { name: 'Poblacion II (Barangay II)', lat: 14.279647, lng: 121.416006 },
-  { name: 'Poblacion III (Barangay III)', lat: 14.282028, lng: 121.415159 },
-  { name: 'Poblacion IV (Barangay IV)', lat: 14.283790, lng: 121.414016 },
-  { name: 'Poblacion V (Barangay V)', lat: 14.285282, lng: 121.412476 },
-  { name: 'San Jose', lat: 14.237118, lng: 121.403754 },
-  { name: 'San Juan', lat: 14.243815, lng: 121.406972 },
-  { name: 'San Pablo Norte', lat: 14.290210, lng: 121.413023 },
-  { name: 'San Pablo Sur', lat: 14.282211, lng: 121.422261 },
-  { name: 'Santisima Cruz', lat: 14.290647, lng: 121.409140 },
-  { name: 'Santo Angel Central', lat: 14.285137, lng: 121.408947 },
-  { name: 'Santo Angel Norte', lat: 14.288547, lng: 121.406307 },
-  { name: 'Santo Angel Sur', lat: 14.282329, lng: 121.410985 }
-];
 
 export const getLogin = (req: Request, res: Response) => {
   if (req.session.user) return res.redirect('/admin/dashboard');
@@ -241,57 +201,20 @@ export const getMap = async (req: Request, res: Response) => {
 };
 
 export const postMapPoint = async (req: Request, res: Response) => {
-  const { incident_type, incident_date, barangay, description } = req.body;
-  
-  // Find coordinates for the selected barangay
-  const pin = manualPins.find(p => p.name === barangay);
-  if (!pin) {
-    return res.status(400).send('Invalid Barangay selected');
-  }
-
+  const { lat, lng, incident_type, incident_date, barangay } = req.body;
   try {
     await db.collection('map_points').add({
-      lat: pin.lat,
-      lng: pin.lng,
+      lat: parseFloat(lat),
+      lng: parseFloat(lng),
       incident_type,
       incident_date,
       barangay,
-      description: description || '',
       created_at: new Date().toISOString()
     });
     res.redirect('/admin/map');
   } catch (err) {
     console.error(err);
     res.status(500).send('Error adding map point');
-  }
-};
-
-export const uploadPdf = async (req: MulterRequest, res: Response) => {
-  if (!req.file) {
-    return res.status(400).send('No PDF file uploaded');
-  }
-
-  try {
-    const dataBuffer = req.file.buffer;
-    const pdfData = await pdf(dataBuffer);
-    const text = pdfData.text;
-
-    // Store the PDF data in the database
-    await db.collection('uploaded_reports').add({
-      filename: req.file.originalname,
-      content: text,
-      uploaded_at: new Date().toISOString(),
-      admin_id: (req.session as any).user.id
-    });
-
-    // Simple parser logic (Mock for now, can be improved with regex)
-    // For demonstration, we'll just log that we processed it
-    console.log(`Processed PDF: ${req.file.originalname}. Extracted ${text.length} characters.`);
-
-    res.redirect('/admin/map?success=PDF processed and stored successfully');
-  } catch (err) {
-    console.error('PDF Processing Error:', err);
-    res.status(500).send('Error processing PDF');
   }
 };
 
