@@ -38,6 +38,7 @@
                         <th class="px-6 py-4">Concern</th>
                         <th class="px-6 py-4">Location</th>
                         <th class="px-6 py-4">Date</th>
+                        <th class="px-6 py-4">Status</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50 dark:divide-slate-700">
@@ -47,6 +48,13 @@
                             <td class="px-6 py-4 font-medium text-gray-700 dark:text-gray-300"><%= tip.concern_type %></td>
                             <td class="px-6 py-4 text-gray-500 dark:text-gray-400"><%= tip.location_text %></td>
                             <td class="px-6 py-4 text-gray-400 text-xs"><%= new Date(tip.created_at).toLocaleDateString() %></td>
+                            <td class="px-6 py-4">
+                                <% if (tip.is_flagged) { %>
+                                    <span class="text-red-500 text-xs flex items-center gap-1"><i class="fas fa-flag"></i> Flagged</span>
+                                <% } else { %>
+                                    <span class="text-green-500 text-xs flex items-center gap-1"><i class="fas fa-check-circle"></i> Clean</span>
+                                <% } %>
+                            </td>
                         </tr>
                     <% }) %>
                 </tbody>
@@ -76,43 +84,7 @@
     </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-10">
-    <!-- Recent Tips -->
-    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700 overflow-hidden">
-        <div class="p-6 border-b border-gray-50 dark:border-slate-700 flex justify-between items-center">
-            <h3 class="font-bold text-pnp-blue dark:text-white uppercase tracking-widest text-xs">Recent Anonymous Tips</h3>
-            <a href="/admin/tips" class="text-[10px] font-bold text-pnp-gold hover:underline uppercase tracking-widest">View All</a>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
-                <thead class="bg-gray-50 dark:bg-slate-900/50 text-gray-400 uppercase text-[10px] font-bold tracking-widest">
-                    <tr>
-                        <th class="px-6 py-4">Tip ID</th>
-                        <th class="px-6 py-4">Concern</th>
-                        <th class="px-6 py-4">Location</th>
-                        <th class="px-6 py-4">Flagged</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50 dark:divide-slate-700">
-                    <% recentTips.forEach(tip => { %>
-                        <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition">
-                            <td class="px-6 py-4 font-mono font-bold text-pnp-blue dark:text-pnp-gold"><%= tip.tip_id %></td>
-                            <td class="px-6 py-4 font-medium text-gray-700 dark:text-gray-300"><%= tip.concern_type %></td>
-                            <td class="px-6 py-4 text-gray-500 dark:text-gray-400"><%= tip.location_text %></td>
-                            <td class="px-6 py-4">
-                                <% if (tip.is_flagged) { %>
-                                    <span class="text-red-500"><i class="fas fa-flag"></i></span>
-                                <% } else { %>
-                                    <span class="text-gray-200 dark:text-gray-700"><i class="fas fa-flag"></i></span>
-                                <% } %>
-                            </td>
-                        </tr>
-                    <% }) %>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+
 
 <script>
     // Listen for dark mode changes
