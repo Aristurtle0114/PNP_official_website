@@ -18,24 +18,36 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-50 dark:divide-slate-700">
-                <% tips.forEach(tip => { %>
-                    <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition">
-                        <td class="px-6 py-4 font-mono font-bold text-pnp-blue dark:text-pnp-gold"><%= tip.tip_id %></td>
-                        <td class="px-6 py-4 font-medium text-gray-700 dark:text-gray-300"><%= tip.concern_type %></td>
-                        <td class="px-6 py-4 text-gray-500 dark:text-gray-400"><%= tip.location_text %></td>
-                        <td class="px-6 py-4 text-gray-400 dark:text-gray-500 text-xs"><%= new Date(tip.created_at).toLocaleDateString() %></td>
-                        <td class="px-6 py-4">
-                            <% if (tip.is_flagged) { %>
-                                <span class="text-red-500"><i class="fas fa-flag"></i></span>
-                            <% } else { %>
-                                <span class="text-gray-200 dark:text-gray-700"><i class="fas fa-flag"></i></span>
-                            <% } %>
-                        </td>
-                        <td class="px-6 py-4">
-                            <button onclick="openTipModal('<%= tip.id %>', '<%= tip.tip_id %>', '<%= tip.concern_type %>', '<%= tip.location_text %>', '<%= tip.description ? tip.description.replace(/'/g, \"\\\\'\") : '' %>', '<%= tip.is_flagged %>', '<%= tip.admin_notes ? tip.admin_notes.replace(/'/g, \"\\\\'\") : '' %>')" class="text-pnp-blue dark:text-pnp-gold hover:text-pnp-gold dark:hover:text-white font-bold text-xs uppercase tracking-widest">View Detail</button>
-                        </td>
-                    </tr>
-                <% }) %>
+                        <% tips.forEach(tip => { %>
+                            <tr class="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition">
+                                <td class="px-6 py-4 font-mono font-bold text-pnp-blue dark:text-pnp-gold"><%= tip.tip_id %></td>
+                                <td class="px-6 py-4 font-medium text-gray-700 dark:text-gray-300"><%= tip.concern_type %></td>
+                                <td class="px-6 py-4 text-gray-500 dark:text-gray-400"><%= tip.location_text %></td>
+                                <td class="px-6 py-4 text-gray-400 dark:text-gray-500 text-xs"><%= new Date(tip.created_at).toLocaleDateString() %></td>
+                                <td class="px-6 py-4">
+                                    <% if (tip.is_flagged) { %>
+                                        <span class="text-red-500"><i class="fas fa-flag"></i></span>
+                                    <% } else { %>
+                                        <span class="text-gray-200 dark:text-gray-700"><i class="fas fa-flag"></i></span>
+                                    <% } %>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <button 
+                                        type="button"
+                                        class="view-tip-btn text-pnp-blue dark:text-pnp-gold hover:text-pnp-gold dark:hover:text-white font-bold text-xs uppercase tracking-widest"
+                                        data-id="<%= tip.id %>"
+                                        data-tip-id="<%= tip.tip_id %>"
+                                        data-concern="<%= tip.concern_type %>"
+                                        data-location="<%= tip.location_text %>"
+                                        data-description="<%= tip.description || '' %>"
+                                        data-flagged="<%= tip.is_flagged ? '1' : '0' %>"
+                                        data-notes="<%= tip.admin_notes || '' %>"
+                                    >
+                                        View Detail
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }) %>
             </tbody>
         </table>
     </div>
@@ -82,6 +94,21 @@
 </div>
 
 <script>
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('view-tip-btn')) {
+            const btn = e.target;
+            const id = btn.getAttribute('data-id');
+            const tipId = btn.getAttribute('data-tip-id');
+            const concern = btn.getAttribute('data-concern');
+            const location = btn.getAttribute('data-location');
+            const description = btn.getAttribute('data-description');
+            const flagged = btn.getAttribute('data-flagged');
+            const notes = btn.getAttribute('data-notes');
+            
+            openTipModal(id, tipId, concern, location, description, flagged, notes);
+        }
+    });
+
     function openTipModal(id, tipId, concern, location, description, flagged, notes) {
         document.getElementById('modalTipId').textContent = 'Tip: ' + tipId;
         document.getElementById('modalConcernType').textContent = concern;
