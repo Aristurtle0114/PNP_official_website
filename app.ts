@@ -59,6 +59,7 @@ app.use((req, res, next) => {
   res.header('Pragma', 'no-cache');
   
   res.locals.sessionId = req.sessionID;
+  res.locals.path = req.path;
   
   if (req.session) {
     res.locals.user = req.session.user || null;
