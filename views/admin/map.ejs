@@ -187,11 +187,27 @@ const colors = {
         if (!selectedName) {
             const bounds = [[14.2100, 121.3400], [14.3100, 121.4850]];
             map.flyToBounds(bounds, { padding: [50, 50], duration: 1.5 });
+            
+            // Disable interaction when no barangay is selected
+            map.dragging.disable();
+            map.touchZoom.disable();
+            map.doubleClickZoom.disable();
+            map.scrollWheelZoom.disable();
+            map.boxZoom.disable();
+            map.keyboard.disable();
             return;
         }
 
         const pin = manualPins.find(p => p.name.toLowerCase() === selectedName.toLowerCase());
         if (pin && map) {
+            // Enable interaction when a barangay is selected
+            map.dragging.enable();
+            map.touchZoom.enable();
+            map.doubleClickZoom.enable();
+            map.scrollWheelZoom.enable();
+            map.boxZoom.enable();
+            map.keyboard.enable();
+
             map.flyTo([pin.lat, pin.lng], 16, {
                 animate: true,
                 duration: 1.5
@@ -233,6 +249,14 @@ const colors = {
                 })
             }).addTo(map);
 
+            marker.on('click', () => {
+                const barangaySelect = document.getElementById('barangay');
+                if (barangaySelect) {
+                    barangaySelect.value = pin.name;
+                    updateBarangayView();
+                }
+            });
+
             marker.bindPopup(`
                 <div class="p-4 min-w-[200px] bg-white dark:bg-slate-800 rounded-xl">
                     <div class="flex items-center space-x-3 mb-3 pb-3 border-b border-gray-100 dark:border-slate-700">
@@ -273,13 +297,13 @@ const colors = {
             // Shifted bounds slightly north and west to center Sta. Cruz
             const bounds = [[14.2100, 121.3400], [14.3100, 121.4850]];
             map = L.map('leafletMap', {
-                zoomControl: true,
-                dragging: true,
-                touchZoom: true,
-                doubleClickZoom: true,
-                scrollWheelZoom: true,
-                boxZoom: true,
-                keyboard: true,
+                zoomControl: false,
+                dragging: false,
+                touchZoom: false,
+                doubleClickZoom: false,
+                scrollWheelZoom: false,
+                boxZoom: false,
+                keyboard: false,
                 attributionControl: true
             }).fitBounds(bounds);
             
@@ -313,6 +337,14 @@ const colors = {
                                     opacity: 1,
                                     fillOpacity: 1
                                 }).addTo(map);
+
+                                marker.on('click', () => {
+                                    const barangaySelect = document.getElementById('barangay');
+                                    if (barangaySelect) {
+                                        barangaySelect.value = name;
+                                        updateBarangayView();
+                                    }
+                                });
 
                                 marker.bindPopup(`
                                     <div class="p-2 min-w-[150px]">
